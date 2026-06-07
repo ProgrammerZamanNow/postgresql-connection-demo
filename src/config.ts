@@ -41,7 +41,7 @@ export async function countBackends(): Promise<number> {
 
 // Ensure the notes table exists and is empty.
 export async function resetSchema(): Promise<void> {
-  const sql = postgres(DIRECT_URL, { max: 1 })
+  const sql = postgres(DIRECT_URL, { max: 1, onnotice: () => {} })
   try {
     await sql`create table if not exists notes (id serial primary key, body text)`
     await sql`truncate notes restart identity`
