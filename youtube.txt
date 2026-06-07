@@ -1,0 +1,43 @@
+Kenapa Koneksi PostgreSQL Itu Mahal — dan Gimana PgBouncer Mengatasinya
+
+Berawal dari satu bug yang bikin pusing: di halaman create, INSERT sukses, data
+ke-return lengkap sama id-nya, tapi pas dibuka halaman detail datanya nggak ada.
+Dicek ke database memang nggak ada. Dan intermittent — kadang masuk, kadang nggak.
+Nggak ada error, nggak ada exception, kodenya udah bener. Kira-kira datanya ke mana?
+
+Di sharing session ini kita bedah dari akarnya: kenapa satu koneksi PostgreSQL itu
+"mahal", apakah ini cuma masalah Postgres atau database lain juga, jebakan yang
+muncul pas aplikasi di-scale-out (autoscaling), cara kerja PgBouncer sebagai
+connection pooler, sampai akhirnya bug intermittent di awal tadi terjawab tuntas.
+
+Yang dibahas:
+• Process-per-connection: kenapa 1 koneksi = 1 proses OS + beberapa MB RAM
+• Perbandingan model koneksi: PostgreSQL vs MySQL vs MongoDB vs Cassandra vs Redis vs DynamoDB
+• Kenapa autoscaling bisa bikin "too many connections" pas trafik tinggi
+• Cara PgBouncer memisahkan penskalaan aplikasi dari jumlah koneksi database
+• Tiga mode pooling: session, transaction, statement
+• Harga dari transaction mode: prepared statement, temp table, SET, advisory lock
+• Fix satu baris untuk bug prepared statement: prepare: false
+• PgBouncer vs Supavisor (pooler-nya Supabase)
+• Checklist praktis milih jenis koneksi
+
+Demo project (Bun + postgres.js + PgBouncer, lengkap 6 kasus yang bisa dijalankan sendiri):
+https://github.com/ProgrammerZamanNow/postgresql-connection-demo
+
+==========================
+TIMELINE
+==========================
+00:00 Pendahuluan
+00:25 Berawal dari satu bug
+02:32 Agenda
+03:37 Kenapa satu koneksi PostgreSQL itu mahal
+05:37 Ini cuma masalah PostgreSQL?
+10:32 Jebakan pas aplikasi scale-out
+14:28 Solusinya: PgBouncer
+22:28 Ada harganya
+39:32 Ringkasan praktis
+
+==========================
+#PostgreSQL #PgBouncer #Database #ConnectionPooling #Backend #Supabase #Supavisor
+#SistemTerdistribusi #Scalability #Autoscaling #Kubernetes #DevOps #Serverless
+#SoftwareEngineering #ProgrammerZamanNow #BelajarPemrograman #Coding #SQL #WebDevelopment #SystemDesign
