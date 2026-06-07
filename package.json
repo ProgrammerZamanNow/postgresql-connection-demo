@@ -1,0 +1,16 @@
+{
+  "name": "postgresql-connection-demo",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "db:up": "podman-compose up -d",
+    "db:down": "podman-compose down -v",
+    "db:logs": "podman-compose logs -f",
+    "demo:cost": "bun run src/01-connection-cost.ts",
+    "demo:exhaustion": "bun run src/02-exhaustion.ts",
+    "demo:bug": "bun run src/03-prepared-bug.ts"
+  },
+  "dependencies": {
+    "postgres": "^3.4.5"
+  }
+}
