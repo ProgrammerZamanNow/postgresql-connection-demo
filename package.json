@@ -6,9 +6,12 @@
     "db:up": "podman-compose up -d",
     "db:down": "podman-compose down -v",
     "db:logs": "podman-compose logs -f",
-    "demo:cost": "bun run src/01-connection-cost.ts",
-    "demo:exhaustion": "bun run src/02-exhaustion.ts",
-    "demo:bug": "bun run src/03-prepared-bug.ts"
+    "kasus:1": "bun run src/kasus-1-connection-cost.ts",
+    "kasus:2": "bun run src/kasus-2-direct-exhaustion.ts",
+    "kasus:3": "bun run src/kasus-3-pooler-flat.ts",
+    "kasus:4": "bun run src/kasus-4-prepared-transaction-bug.ts",
+    "kasus:5": "bun run src/kasus-5-prepared-session-ok.ts",
+    "kasus:6": "bun run src/kasus-6-prepare-false-fix.ts"
   },
   "dependencies": {
     "postgres": "^3.4.5"

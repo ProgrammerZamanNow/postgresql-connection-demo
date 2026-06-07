@@ -24,29 +24,34 @@ psql postgres://demo:demo@localhost:6432/demo_tx -tAc "select 1"            # 1
 > Catatan: Postgres container dipetakan ke host port **5433** (bukan 5432) supaya
 > tidak bentrok dengan PostgreSQL lokal yang mungkin sudah jalan di 5432.
 
-## Jalankan demo (urut sesuai slide)
+## Jalankan demo (6 kasus, urut sesuai slide)
 
-| Perintah | Skenario | Slide |
-|---|---|---|
-| `bun run demo:cost`       | Satu koneksi = satu proses OS (RAM per koneksi)    | 5 |
-| `bun run demo:exhaustion` | Exhaustion langsung vs PgBouncer yang tetap datar  | 10, 13 |
-| `bun run demo:bug`        | Bug prepared statement + fix `prepare:false`       | 2, 16-19 |
+| Perintah | Kasus | Hasil | Slide |
+|---|---|---|---|
+| `bun run kasus:1` | Satu koneksi = satu proses OS (RAM per koneksi) | 10 proses ~16 MB | 5 |
+| `bun run kasus:2` | Koneksi langsung menembus `max_connections` | ❌ `53300 too many clients` | 10, 13 |
+| `bun run kasus:3` | Lewat PgBouncer → koneksi nyata tetap datar | ✅ semua lolos, backend ~5 | 13 |
+| `bun run kasus:4` | Prepared statement di **transaction** mode | ❌ `26000 does not exist` | 18 |
+| `bun run kasus:5` | Prepared statement di **session** mode | ✅ sukses | 16 |
+| `bun run kasus:6` | Fix: `prepare:false` di transaction mode | ✅ sukses | 19 |
 
-Output ketiganya naratif Bahasa Indonesia.
+Output naratif Bahasa Indonesia. Tiap kasus berdiri sendiri (perintah terpisah).
 
-### Apa yang dibuktikan tiap skenario
-- **demo:cost** — buka 10 koneksi langsung, tampilkan 10 PID backend + RSS (~MB)
-  tiap proses lewat `/proc`. Koneksi = proses fork, bukan sekadar socket.
-- **demo:exhaustion** — 30 "pod": mode DIRECT sebagian kena `too many clients`
-  (max_connections=20); mode POOLER semua sukses, koneksi nyata ke Postgres tetap
-  ~5 (dibatasi `default_pool_size`).
-- **demo:bug** — `PREPARE` lalu `EXECUTE` (di-pin ke satu koneksi via `reserve()`):
-  - KASUS 1 transaction mode → ❌ `26000 prepared statement does not exist`
-  - KASUS 2 session mode → ✅ (koneksi server dipegang sepanjang sesi)
-  - KASUS 3 transaction mode + `prepare:false` (query langsung) → ✅ (fix Slide 19)
+### Apa yang dibuktikan tiap kasus
+- **kasus:1** — buka 10 koneksi langsung, tampilkan 10 PID backend + RSS (~MB) tiap
+  proses lewat `/proc`. Koneksi = proses fork, bukan sekadar socket.
+- **kasus:2** — 30 "pod" konek langsung; sebagian kena `too many clients`
+  (`max_connections=20`). Pesan error mentahnya ditampilkan.
+- **kasus:3** — 30 "pod" yang sama lewat PgBouncer: semua lolos (ngantri, bukan
+  error), koneksi nyata ke Postgres tetap ~5 (dibatasi `default_pool_size`).
+- **kasus:4** — `PREPARE` lalu `EXECUTE` (di-pin ke satu koneksi via `reserve()`)
+  di transaction mode → ❌ `26000 prepared statement does not exist`.
+- **kasus:5** — workload sama di session mode → ✅ (koneksi server dipegang
+  sepanjang sesi). Bukti: bug spesifik ke transaction mode.
+- **kasus:6** — transaction mode + `prepare:false` (query langsung) → ✅ fix Slide 19.
 
-Knob opsional: `N=20 bun run demo:cost`, `PODS=40 bun run demo:exhaustion`,
-`OPS=100 bun run demo:bug`.
+Knob opsional: `N=20 bun run kasus:1`, `PODS=40 bun run kasus:2`,
+`OPS=100 bun run kasus:4`.
 
 ## Bersih-bersih
 ```bash

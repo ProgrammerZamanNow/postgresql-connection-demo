@@ -14,7 +14,7 @@ async function rssKbForPid(pid: number): Promise<number | null> {
   return m ? Number(m[1]) : null
 }
 
-header('Skenario 1 — Satu koneksi PostgreSQL = satu proses OS (Slide 5)')
+header('KASUS 1 — Satu koneksi PostgreSQL = satu proses OS (Slide 5)')
 info(`Membuka ${N} koneksi langsung ke Postgres dan menahannya tetap terbuka...`)
 
 const clients: ReturnType<typeof postgres>[] = []
